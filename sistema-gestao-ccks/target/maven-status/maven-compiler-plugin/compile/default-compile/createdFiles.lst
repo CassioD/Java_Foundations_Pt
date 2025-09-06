@@ -1,0 +1,9 @@
+com\example\ui\MainDashboardController.class
+com\example\App.class
+com\example\ui\LoginController.class
+com\example\model\User$UserProfile.class
+com\example\ui\UserManagementController.class
+com\example\dao\UserDAO.class
+com\example\model\User.class
+com\example\util\DatabaseConnection.class
+com\example\util\PasswordGenerator.class

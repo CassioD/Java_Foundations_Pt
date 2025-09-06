@@ -1,27 +1,42 @@
 package com.example.model;
 
+/**
+ * Classe de Modelo (Model ou POJO - Plain Old Java Object) que representa um Usuário.
+ * Ela encapsula os dados de um usuário, correspondendo à estrutura da tabela 'users' no banco de dados.
+ */
 public class User {
 
+    // Atributos que representam as colunas da tabela 'users'.
     private int id;
     private String fullName;
     private String cpf;
     private String email;
     private String jobTitle;
     private String login;
-    private String password;
+    private String password; // Usado para receber a senha do formulário e para criar o hash. Não armazena o hash lido do banco.
     private UserProfile profile;
 
+    /**
+     * Enum para representar os diferentes perfis de usuário no sistema.
+     * Usar um Enum torna o código mais seguro e legível do que usar Strings.
+     */
     public enum UserProfile {
         ADMINISTRADOR,
         GERENTE,
         COLABORADOR
     }
 
-    // Construtor, Getters e Setters
+    // Construtores, Getters e Setters
 
+    /**
+     * Construtor padrão.
+     */
     public User() {
     }
 
+    /**
+     * Construtor completo para criar um objeto User com todos os seus dados.
+     */
     public User(int id, String fullName, String cpf, String email, String jobTitle, String login, String password, UserProfile profile) {
         this.id = id;
         this.fullName = fullName;
@@ -32,6 +47,9 @@ public class User {
         this.password = password;
         this.profile = profile;
     }
+
+    // --- Getters e Setters ---
+    // Métodos padrão para acessar e modificar os atributos privados da classe (encapsulamento).
 
     public int getId() {
         return id;
