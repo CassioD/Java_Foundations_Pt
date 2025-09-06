@@ -1,5 +1,3 @@
-Aqui está o arquivo README para o seu repositório do GitHub:
-
 ```markdown
 # PROGRAMAÇÃO DE SOLUÇÕES COMPUTACIONAIS - Trabalho A3
 
