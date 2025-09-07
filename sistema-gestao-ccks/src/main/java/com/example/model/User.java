@@ -114,4 +114,14 @@ public class User {
     public void setProfile(UserProfile profile) {
         this.profile = profile;
     }
+
+    /**
+     * Retorna a representação em String do objeto, que por padrão será o nome completo.
+     * Isso é útil para exibir o usuário em componentes de UI como ComboBox.
+     * @return O nome completo do usuário.
+     */
+    @Override
+    public String toString() {
+        return this.fullName;
+    }
 }

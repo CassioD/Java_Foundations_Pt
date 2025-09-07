@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<VBox alignment="TOP_CENTER" prefHeight="700.0" prefWidth="500.0" spacing="20.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.ui.TaskManagementController">
+    <padding>
+        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+    </padding>
+    <children>
+        <Label text="Cadastro de Tarefa">
+            <font>
+                <Font name="System Bold" size="24.0" />
+            </font>
+        </Label>
+        <GridPane hgap="10.0" vgap="15.0">
+            <columnConstraints>
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="130.0" />
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="300.0" />
+            </columnConstraints>
+            <rowConstraints>
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="10.0" prefHeight="80.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            </rowConstraints>
+            <children>
+                <Label text="Título da Tarefa:" />
+                <TextField fx:id="titleField" GridPane.columnIndex="1" />
+                <Label text="Descrição:" GridPane.rowIndex="1" />
+                <TextArea fx:id="descriptionArea" prefHeight="200.0" prefWidth="200.0" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                <Label text="Projeto:" GridPane.rowIndex="2" />
+                <ComboBox fx:id="projectComboBox" prefWidth="300.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                <Label text="Responsável:" GridPane.rowIndex="3" />
+                <ComboBox fx:id="responsibleComboBox" prefWidth="300.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                <Label text="Status:" GridPane.rowIndex="4" />
+                <ComboBox fx:id="statusComboBox" prefWidth="300.0" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                <Label text="Início Previsto:" GridPane.rowIndex="5" />
+                <DatePicker fx:id="plannedStartDatePicker" prefWidth="300.0" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                <Label text="Término Previsto:" GridPane.rowIndex="6" />
+                <DatePicker fx:id="plannedEndDatePicker" prefWidth="300.0" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+                <Label text="Início Real:" GridPane.rowIndex="7" />
+                <DatePicker fx:id="actualStartDatePicker" prefWidth="300.0" GridPane.columnIndex="1" GridPane.rowIndex="7" />
+                <Label text="Término Real:" GridPane.rowIndex="8" />
+                <DatePicker fx:id="actualEndDatePicker" prefWidth="300.0" GridPane.columnIndex="1" GridPane.rowIndex="8" />
+            </children>
+        </GridPane>
+        <Button onAction="#handleSaveTaskAction" prefWidth="100.0" text="Salvar" />
+        <Label fx:id="statusLabel" />
+    </children>
+</VBox>

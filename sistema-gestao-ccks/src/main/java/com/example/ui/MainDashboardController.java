@@ -48,4 +48,70 @@ public class MainDashboardController {
             e.printStackTrace(); 
         }
     }
+
+    /**
+     * Método acionado quando o item de menu "Gerenciar Projetos" é clicado.
+     * Abre a janela de cadastro e gerenciamento de projetos.
+     *
+     * @param event O evento de ação gerado pelo clique no menu.
+     */
+    @FXML
+    void handleProjectManagementAction(ActionEvent event) {
+        try {
+            // Carrega o arquivo FXML da tela de gerenciamento de projetos.
+            URL fxmlUrl = getClass().getResource("/com/example/ui/ProjectManagement.fxml");
+            Parent projectManagementView = FXMLLoader.load(fxmlUrl);
+            
+            // Cria um novo Stage (uma nova janela) para a tela de gerenciamento.
+            Stage stage = new Stage();
+            stage.setTitle("Gerenciamento de Projetos");
+            stage.setScene(new Scene(projectManagementView));
+            stage.initModality(Modality.APPLICATION_MODAL); 
+            
+            stage.showAndWait();
+        } catch (IOException e) {
+            e.printStackTrace(); 
+        }
+    }
+
+    @FXML
+    void handleTeamManagementAction(ActionEvent event) {
+        openModalWindow("/com/example/ui/TeamManagement.fxml", "Gerenciamento de Equipes");
+    }
+
+    @FXML
+    void handleProjectTeamAllocationAction(ActionEvent event) {
+        openModalWindow("/com/example/ui/ProjectTeamAllocation.fxml", "Alocação de Equipes a Projetos");
+    }
+
+    @FXML
+    void handleTaskManagementAction(ActionEvent event) {
+        openModalWindow("/com/example/ui/TaskManagement.fxml", "Gerenciamento de Tarefas");
+    }
+
+    /**
+     * Método auxiliar para abrir uma nova janela modal.
+     * Refatora a lógica repetitiva de carregar FXML e criar um novo Stage.
+     * @param fxmlPath O caminho para o arquivo FXML.
+     * @param title O título da nova janela.
+     */
+    private void openModalWindow(String fxmlPath, String title) {
+        try {
+            URL fxmlUrl = getClass().getResource(fxmlPath);
+            if (fxmlUrl == null) {
+                System.err.println("Não foi possível encontrar o arquivo FXML: " + fxmlPath);
+                return;
+            }
+            Parent view = FXMLLoader.load(fxmlUrl);
+            
+            Stage stage = new Stage();
+            stage.setTitle(title);
+            stage.setScene(new Scene(view));
+            stage.initModality(Modality.APPLICATION_MODAL);
+            
+            stage.showAndWait();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }

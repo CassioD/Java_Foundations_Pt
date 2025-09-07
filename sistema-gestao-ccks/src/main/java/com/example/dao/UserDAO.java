@@ -9,6 +9,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * DAO (Data Access Object) para a entidade User.
@@ -98,6 +100,55 @@ public class UserDAO {
             return false;
         }
     }
+
+    /**
+     * Busca no banco de dados todos os usuários que podem ser gerentes de projeto.
+     * Neste caso, são os usuários com perfil 'ADMINISTRADOR' ou 'GERENTE'.
+     *
+     * @return Uma lista de objetos User que são gerentes.
+     */
+    public List<User> getManagerUsers() {
+        List<User> managers = new ArrayList<>();
+        // Query para selecionar usuários que são administradores ou gerentes.
+        String sql = "SELECT * FROM users WHERE profile = 'ADMINISTRADOR' OR profile = 'GERENTE'";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql);
+             ResultSet rs = pstmt.executeQuery()) {
+
+            // Itera sobre o resultado da consulta.
+            while (rs.next()) {
+                // Mapeia cada linha para um objeto User e adiciona à lista.
+                managers.add(mapRowToUser(rs));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace(); // Logar o erro.
+        }
+        return managers;
+    }
+
+    /**
+     * Busca todos os usuários cadastrados no banco de dados.
+     *
+     * @return Uma lista com todos os objetos User.
+     */
+    public List<User> getAllUsers() {
+        List<User> users = new ArrayList<>();
+        String sql = "SELECT * FROM users ORDER BY full_name";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql);
+             ResultSet rs = pstmt.executeQuery()) {
+
+            while (rs.next()) {
+                users.add(mapRowToUser(rs));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace(); // Logar o erro.
+        }
+        return users;
+    }
+
 
     /**
      * Método auxiliar para mapear uma linha de um ResultSet para um objeto User.
