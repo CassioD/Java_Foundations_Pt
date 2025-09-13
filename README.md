@@ -7,15 +7,6 @@ O trabalho foi desenvolvido pelos alunos do curso de graduação em **Big Data e
 
 ---
 
-## 👥 Alunos Responsáveis
-
-- **CÁSSIO DANIEL DOS SANTOS**  
-- **KAREN AIROSA MACHADO DE AZEVEDO**  
-- **CAROLINA DE AZEVEDO PAES**  
-- **SÉRGIO DOS SANTOS AMARAL**
-
----
-
 ## 🖥️ Tecnologias e Conceitos Fundamentais
 
 O desenvolvimento deste trabalho utiliza a linguagem de programação **Java**.  
