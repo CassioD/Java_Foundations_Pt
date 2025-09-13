@@ -87,6 +87,52 @@ public class ProjectDAO {
     }
 
     /**
+     * Atualiza os dados de um projeto existente no banco de dados.
+     * @param project O objeto Project com os dados atualizados.
+     * @return true se a atualização for bem-sucedida, false caso contrário.
+     */
+    public boolean updateProject(Project project) {
+        String sql = "UPDATE projects SET name = ?, description = ?, start_date = ?, planned_end_date = ?, status = ?, manager_id = ? WHERE id = ?";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, project.getName());
+            pstmt.setString(2, project.getDescription());
+            pstmt.setDate(3, Date.valueOf(project.getStartDate()));
+            pstmt.setDate(4, Date.valueOf(project.getPlannedEndDate()));
+            pstmt.setString(5, project.getStatus().name());
+            pstmt.setInt(6, project.getManagerId());
+            pstmt.setInt(7, project.getId());
+
+            return pstmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /**
+     * Deleta um projeto do banco de dados pelo seu ID.
+     * @param projectId O ID do projeto a ser deletado.
+     * @return true se a deleção for bem-sucedida, false caso contrário.
+     */
+    public boolean deleteProject(int projectId) {
+        String sql = "DELETE FROM projects WHERE id = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, projectId);
+            return pstmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            // Pode falhar devido a restrições de chave estrangeira (tarefas associadas, etc.)
+            // A cláusula ON DELETE CASCADE no banco de dados lida com isso para tabelas de associação.
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+
+    /**
      * Método auxiliar para mapear uma linha do ResultSet para um objeto Project.
      * @param rs O ResultSet posicionado na linha a ser mapeada.
      * @return Um objeto Project preenchido.

@@ -149,16 +149,75 @@ public class UserDAO {
         return users;
     }
 
+    /**
+     * Atualiza os dados de um usuário existente no banco de dados.
+     * A senha só é atualizada se uma nova for fornecida no objeto User.
+     *
+     * @param user O objeto User com os dados atualizados.
+     * @return true se a atualização for bem-sucedida, false caso contrário.
+     */
+    public boolean updateUser(User user) {
+        boolean passwordChanged = user.getPassword() != null && !user.getPassword().isEmpty();
+
+        StringBuilder sqlBuilder = new StringBuilder("UPDATE users SET full_name = ?, cpf = ?, email = ?, job_title = ?, login = ?, profile = ?");
+        if (passwordChanged) {
+            sqlBuilder.append(", password = ?");
+        }
+        sqlBuilder.append(" WHERE id = ?");
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sqlBuilder.toString())) {
+
+            pstmt.setString(1, user.getFullName());
+            pstmt.setString(2, user.getCpf());
+            pstmt.setString(3, user.getEmail());
+            pstmt.setString(4, user.getJobTitle());
+            pstmt.setString(5, user.getLogin());
+            pstmt.setString(6, user.getProfile().name());
+
+            int parameterIndex = 7;
+            if (passwordChanged) {
+                String hashedPassword = BCrypt.hashpw(user.getPassword(), BCrypt.gensalt());
+                pstmt.setString(parameterIndex++, hashedPassword);
+            }
+            pstmt.setInt(parameterIndex, user.getId());
+
+            return pstmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 
     /**
-     * Método auxiliar para mapear uma linha de um ResultSet para um objeto User.
+     * Deleta um usuário do banco de dados pelo seu ID.
+     *
+     * @param userId O ID do usuário a ser deletado.
+     * @return true se a deleção for bem-sucedida, false caso contrário.
+     */
+    public boolean deleteUser(int userId) {
+        String sql = "DELETE FROM users WHERE id = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, userId);
+            return pstmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            // Pode falhar devido a restrições de chave estrangeira (e.g., usuário é gerente de projeto)
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+
+    /**
+     * Mapeia uma linha de um ResultSet para um objeto User.
      * Reutiliza a lógica de criação de objetos User a partir de dados do banco.
      *
      * @param rs O ResultSet posicionado na linha a ser mapeada.
      * @return Um objeto User preenchido com os dados da linha.
      * @throws SQLException Se ocorrer um erro ao acessar os dados do ResultSet.
      */
-    private User mapRowToUser(ResultSet rs) throws SQLException {
+    public User mapRowToUser(ResultSet rs) throws SQLException {
         User user = new User();
         user.setId(rs.getInt("id"));
         user.setFullName(rs.getString("full_name"));
