@@ -1,12 +1,9 @@
 package com.example.model;
 
-import java.util.List;
-
 public class Team {
     private int id;
     private String name;
     private String description;
-    private List<User> members; // Usado para lógica de negócio e UI
 
     public int getId() {
         return id;
