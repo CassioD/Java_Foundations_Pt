@@ -10,8 +10,8 @@
             "request": "launch",
             "mainClass": "com.example.App",
             "projectName": "sistema-gestao-ccks",
-            "vmArgs": "--add-modules javafx.controls,javafx.fxml,javafx.graphics",
-            "preLaunchTask": "Build Project (Maven)"
+            "preLaunchTask": "Build Project (Maven)",
+            "console": "integratedTerminal",
         }
     ]
 }

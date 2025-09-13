@@ -5,6 +5,7 @@ C:\projeto\Java_Foundations_Pt\sistema-gestao-ccks\src\main\java\com\example\ui\
 C:\projeto\Java_Foundations_Pt\sistema-gestao-ccks\src\main\java\com\example\dao\ProjectDAO.java
 C:\projeto\Java_Foundations_Pt\sistema-gestao-ccks\src\main\java\com\example\ui\ProjectManagementController.java
 C:\projeto\Java_Foundations_Pt\sistema-gestao-ccks\src\main\java\com\example\model\Task.java
+C:\projeto\Java_Foundations_Pt\sistema-gestao-ccks\src\main\java\module-info.java
 C:\projeto\Java_Foundations_Pt\sistema-gestao-ccks\src\main\java\com\example\ui\UserManagementController.java
 C:\projeto\Java_Foundations_Pt\sistema-gestao-ccks\src\main\java\com\example\dao\TeamDAO.java
 C:\projeto\Java_Foundations_Pt\sistema-gestao-ccks\src\main\java\com\example\util\DatabaseConnection.java
@@ -17,4 +18,5 @@ C:\projeto\Java_Foundations_Pt\sistema-gestao-ccks\src\main\java\com\example\ui\
 C:\projeto\Java_Foundations_Pt\sistema-gestao-ccks\src\main\java\com\example\ui\ProjectTeamAllocationController.java
 C:\projeto\Java_Foundations_Pt\sistema-gestao-ccks\src\main\java\com\example\util\PasswordGenerator.java
 C:\projeto\Java_Foundations_Pt\sistema-gestao-ccks\src\main\java\com\example\model\Project.java
+C:\projeto\Java_Foundations_Pt\sistema-gestao-ccks\src\main\java\com\example\Launcher.java
 C:\projeto\Java_Foundations_Pt\sistema-gestao-ccks\src\main\java\com\example\ui\TeamManagementController.java

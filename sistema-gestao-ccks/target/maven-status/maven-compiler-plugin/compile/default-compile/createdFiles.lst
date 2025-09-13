@@ -1,6 +1,7 @@
 com\example\model\User$UserProfile.class
 com\example\dao\TeamDAO.class
 com\example\util\DatabaseConnection.class
+module-info.class
 com\example\App.class
 com\example\model\ProjectStatus.class
 com\example\model\Team.class
@@ -9,6 +10,7 @@ com\example\model\User.class
 com\example\model\Project.class
 com\example\dao\TaskDAO.class
 com\example\ui\TaskManagementController.class
+com\example\Launcher.class
 com\example\ui\TeamManagementController.class
 com\example\model\TaskStatus.class
 com\example\ui\ProjectManagementController.class

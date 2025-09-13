@@ -184,20 +184,40 @@ public class ProjectManagementController {
     }
 
     private void readForm(Project project) {
-        project.setName(nameField.getText());
+        project.setName(nameField.getText().trim());
         project.setDescription(descriptionArea.getText());
         project.setStartDate(startDatePicker.getValue());
         project.setPlannedEndDate(plannedEndDatePicker.getValue());
         project.setStatus(statusComboBox.getValue());
-        project.setManagerId(managerComboBox.getValue().getId());
+        User selectedManager = managerComboBox.getValue();
+        if (selectedManager != null) {
+            project.setManagerId(selectedManager.getId());
+        }
     }
 
     private boolean isFormValid() {
-        if (nameField.getText().isEmpty() || startDatePicker.getValue() == null ||
-            plannedEndDatePicker.getValue() == null || statusComboBox.getValue() == null ||
-            managerComboBox.getValue() == null) {
+        StringBuilder errorMessage = new StringBuilder();
+        if (nameField.getText() == null || nameField.getText().trim().isEmpty()) {
+            errorMessage.append("O nome do projeto é obrigatório.\n");
+        }
+        if (startDatePicker.getValue() == null) {
+            errorMessage.append("A data de início é obrigatória.\n");
+        }
+        if (plannedEndDatePicker.getValue() == null) {
+            errorMessage.append("A data de término é obrigatória.\n");
+        }
+        if (statusComboBox.getValue() == null) {
+            errorMessage.append("O status é obrigatório.\n");
+        }
+        if (managerComboBox.getValue() == null) {
+            errorMessage.append("O gerente do projeto é obrigatório.\n");
+        }
+        if (startDatePicker.getValue() != null && plannedEndDatePicker.getValue() != null && plannedEndDatePicker.getValue().isBefore(startDatePicker.getValue())) {
+            errorMessage.append("A data de término não pode ser anterior à data de início.\n");
+        }
+        if (!errorMessage.isEmpty()) {
             statusLabel.setTextFill(Color.RED);
-            statusLabel.setText("Preencha todos os campos obrigatórios.");
+            statusLabel.setText(errorMessage.toString());
             return false;
         }
         return true;

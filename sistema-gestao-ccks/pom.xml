@@ -52,15 +52,14 @@
   </dependencies>
 
   <build>
-    <pluginManagement><!-- lock down plugins versions to avoid using Maven defaults (may be moved to parent pom) -->
-      <plugins>
+    <plugins>
         <!-- Plugin do JavaFX -->
         <plugin>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-maven-plugin</artifactId>
             <version>0.0.8</version>
             <configuration>
-                <mainClass>com.example.App</mainClass>
+              <mainClass>com.example.App</mainClass>
             </configuration>
         </plugin>
         <!-- clean lifecycle, see https://maven.apache.org/ref/current/maven-core/lifecycles.html#clean_Lifecycle -->
@@ -84,6 +83,13 @@
         <plugin>
           <artifactId>maven-jar-plugin</artifactId>
           <version>3.0.2</version>
+          <configuration>
+            <archive>
+              <manifest>
+                <mainClass>com.example.Launcher</mainClass>
+              </manifest>
+            </archive>
+          </configuration>
         </plugin>
         <plugin>
           <artifactId>maven-install-plugin</artifactId>
@@ -102,7 +108,31 @@
           <artifactId>maven-project-info-reports-plugin</artifactId>
           <version>3.0.0</version>
         </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-shade-plugin</artifactId>
+          <version>3.5.1</version>
+          <executions>
+            <execution>
+              <phase>package</phase>
+              <goals>
+                <goal>shade</goal>
+              </goals>
+              <configuration>
+                <transformers>
+                  <transformer
+                          implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                  <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                    <mainClass>com.example.Launcher</mainClass>
+                  </transformer>
+
+
+
+                </transformers>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
       </plugins>
-    </pluginManagement>
   </build>
 </project>

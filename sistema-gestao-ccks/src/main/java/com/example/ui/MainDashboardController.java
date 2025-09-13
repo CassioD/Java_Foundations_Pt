@@ -109,53 +109,12 @@ public class MainDashboardController {
      */
     @FXML
     void handleUserManagementAction(ActionEvent event) {
-        try {
-            // Carrega o arquivo FXML da tela de gerenciamento de usuários.
-            URL fxmlUrl = getClass().getResource("/com/example/ui/UserManagement.fxml");
-            Parent userManagementView = FXMLLoader.load(fxmlUrl);
-            
-            // Cria um novo Stage (uma nova janela) para a tela de gerenciamento.
-            Stage stage = new Stage();
-            stage.setTitle("Gerenciamento de Usuários");
-            stage.setScene(new Scene(userManagementView));
-            
-            // Define a modalidade da janela.
-            // Modality.APPLICATION_MODAL bloqueia a interação com a janela principal (dashboard)
-            // até que esta nova janela seja fechada. Isso é útil para formulários.
-            stage.initModality(Modality.APPLICATION_MODAL); 
-            
-            // Exibe a janela e espera até que ela seja fechada.
-            stage.showAndWait();
-            
-        } catch (IOException e) {
-            // Em caso de erro ao carregar o FXML, imprime o erro para depuração.
-            e.printStackTrace(); 
-        }
+        openModalWindow("/com/example/ui/UserManagement.fxml", "Gerenciamento de Usuários");
     }
 
-    /**
-     * Método acionado quando o item de menu "Gerenciar Projetos" é clicado.
-     * Abre a janela de cadastro e gerenciamento de projetos.
-     *
-     * @param event O evento de ação gerado pelo clique no menu.
-     */
     @FXML
     void handleProjectManagementAction(ActionEvent event) {
-        try {
-            // Carrega o arquivo FXML da tela de gerenciamento de projetos.
-            URL fxmlUrl = getClass().getResource("/com/example/ui/ProjectManagement.fxml");
-            Parent projectManagementView = FXMLLoader.load(fxmlUrl);
-            
-            // Cria um novo Stage (uma nova janela) para a tela de gerenciamento.
-            Stage stage = new Stage();
-            stage.setTitle("Gerenciamento de Projetos");
-            stage.setScene(new Scene(projectManagementView));
-            stage.initModality(Modality.APPLICATION_MODAL); 
-            
-            stage.showAndWait();
-        } catch (IOException e) {
-            e.printStackTrace(); 
-        }
+        openModalWindow("/com/example/ui/ProjectManagement.fxml", "Gerenciamento de Projetos");
     }
 
     @FXML
@@ -186,7 +145,8 @@ public class MainDashboardController {
                 System.err.println("Não foi possível encontrar o arquivo FXML: " + fxmlPath);
                 return;
             }
-            Parent view = FXMLLoader.load(fxmlUrl);
+            FXMLLoader loader = new FXMLLoader(fxmlUrl);
+            Parent view = loader.load();
             
             Stage stage = new Stage();
             stage.setTitle(title);
@@ -195,7 +155,7 @@ public class MainDashboardController {
             
             stage.showAndWait();
         } catch (IOException e) {
-            e.printStackTrace();
+         e.printStackTrace();
         }
     }
 
