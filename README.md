@@ -55,19 +55,107 @@ O curso *Java Foundations* serve como base para a compreensão dos conceitos e p
 
 ## 🚀 Como Abrir e Executar o Projeto
 
-1. **Pré-requisitos:**  
-   Certifique-se de ter o **Java Development Kit (JDK)** instalado em sua máquina. O material do curso *Java Foundations* faz referência ao Java SE 17 para a documentação da API.  
+## 📋 Requisitos
 
-2. **Ambiente de Desenvolvimento (IDE):**  
-   Recomenda-se o uso de um IDE como **NetBeans**, **Eclipse** ou **IntelliJ IDEA**. O curso menciona o NetBeans como exemplo em capturas de tela e atalhos.  
+Para compilar e executar este projeto, você precisará ter o seguinte software instalado e configurado no seu ambiente:
 
-3. **Importar Projeto:**  
-   Clone este repositório para o seu ambiente local e importe-o como um projeto Java em seu IDE.  
+1. **Java Development Kit (JDK)**  
+   - **Versão:** 21 ou superior.  
+   - **Download:** Você pode baixar o JDK do Oracle ou de uma distribuição OpenJDK como o *Eclipse Temurin (Adoptium)*.  
+   - **Verificação:** Abra um terminal e execute:  
+     ```bash
+     java --version
+     ```
 
-4. **Compilar e Executar:**  
-   - O código-fonte (`.java`) é compilado em bytecode (`.class`) pelo JDK.  
-   - O bytecode é então executado pela JVM (Java Virtual Machine), que faz parte do JRE (Java Runtime Environment).  
-   - Se o projeto contiver vários arquivos com métodos `main`, clique com o botão direito no arquivo desejado dentro do explorador de projetos do IDE e selecione **Executar Arquivo** (ou equivalente).  
+2. **Apache Maven**  
+   - **Versão:** 3.8.x ou superior.  
+   - **Download e Instalação:** Siga o [guia oficial de instalação do Maven](https://maven.apache.org/install.html).  
+   - É crucial configurar as variáveis de ambiente `M2_HOME` e `PATH`.  
+   - **Verificação:**  
+     ```bash
+     mvn --version
+     ```
+
+3. **Visual Studio Code**  
+   - O editor de código onde o projeto será gerenciado.  
+
+4. **Extensões do VS Code**  
+   - Instale o pacote de extensões **"Extension Pack for Java"** da Microsoft.  
+   - Ele inclui todo o suporte necessário para desenvolvimento Java e Maven no VS Code.  
+
+5. **Servidor de Banco de Dados MySQL**  
+   - **Versão:** 8.0 ou superior.  
+   - Pode ser usado via instalação local, container Docker ou serviço em nuvem.  
+   - **Ferramenta de Gestão:** Recomenda-se **MySQL Workbench** ou **DBeaver** para facilitar a administração do banco de dados.  
+
+---
+
+## ⚙️ Passo a Passo para Instalação e Execução
+
+### 1. Clonar o Repositório
+Abra um terminal ou Git Bash e clone o projeto para a sua máquina local:  
+
+```bash
+git clone <URL_DO_SEU_REPOSITORIO>
+cd sistema-gestao-ccks
+```
+## 2. Configurar o Banco de Dados
+
+1. Conecte-se ao seu servidor **MySQL** usando sua ferramenta preferida.  
+2. Abra o arquivo `gestao_projetos_db.sql` que está na raiz do projeto.  
+3. Execute o script completo.  
+
+O script irá:  
+- Criar o banco de dados `gestao_projetos_db`.  
+- Criar as tabelas necessárias (`users`, `projects`, etc.).  
+- Inserir um usuário administrador inicial:  
+  - **Login:** `admin`  
+  - **Senha:** `admin123`  
+
+---
+
+## 3. Configurar a Conexão com o Banco
+
+No código do projeto, ajuste as credenciais de conexão.
+Altere as variáveis de conexão para refletirem o seu ambiente:
+
+```bash
+private static final String URL = "jdbc:mysql://localhost:3306/gestao_projetos_db";
+private static final String USER = "seu_usuario";
+private static final String PASSWORD = "sua_senha";
+```
+## 4. Abrir o Projeto no VS Code
+
+1. Abra o **Visual Studio Code**.  
+2. Vá em `File > Open Folder...` e selecione a pasta `sistema-gestao-ccks`.  
+3. Aguarde o reconhecimento do `pom.xml` e o download das dependências do **Maven**.  
+
+---
+
+## 5. Compilar e Executar a Aplicação
+
+### 🔨 Compilando e Gerando o Executável
+
+Abra um terminal na pasta raiz do projeto:
+
+```bash
+cd c:\projeto\Java_Foundations_Pt\sistema-gestao-ccks\
+mvn clean package
+```
+- **clean:** Remove compilações anteriores.  
+- **package:** Compila, executa os testes e gera o `.jar`.  
+
+Após a compilação, o Maven criará o arquivo executável em:  
+```bash
+target/sistema-gestao-ccks-1.0-SNAPSHOT.jar
+```
+### ▶️ Executar a Aplicação
+
+Para iniciar o sistema:
+```bash
+java -jar target/sistema-gestao-ccks-1.0-SNAPSHOT.jar
+```
+Se tudo estiver correto, a tela de login será exibida.
 
 --- 
 Oracle, Java e MySQL são marcas comerciais registradas da Oracle Corporation e/ou de suas empresas afiliadas.  
