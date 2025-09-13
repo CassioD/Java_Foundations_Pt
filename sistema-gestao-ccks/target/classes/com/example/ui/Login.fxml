@@ -17,8 +17,8 @@
     <children>
         <ImageView fitHeight="100.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true">
             <image>
-                <!-- O @ no início do path indica que o recurso está na pasta 'resources' -->
-                <Image url="@/images/ccks.png" />
+                <!-- O / no início do path indica que o recurso está na raiz do classpath (pasta 'resources') -->
+                <Image url="/images/ccks.png" />
             </image>
             <VBox.margin>
                 <Insets bottom="10.0" />

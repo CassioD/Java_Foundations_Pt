@@ -20,4 +20,5 @@ com\example\ui\LoginController.class
 com\example\ui\UserManagementController.class
 com\example\model\Task.class
 com\example\ui\ProjectTeamAllocationController.class
+com\example\ui\MainDashboardController$1.class
 com\example\util\PasswordGenerator.class

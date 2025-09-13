@@ -12,9 +12,12 @@ import com.example.model.TaskStatus;
 import java.io.IOException;
 import java.net.URL;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import javafx.geometry.Pos;
+import javafx.scene.layout.VBox;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.beans.property.SimpleStringProperty;
@@ -28,7 +31,9 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.control.Label;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -72,6 +77,9 @@ public class MainDashboardController {
 
     @FXML
     private TableColumn<Task, String> taskResponsibleColumn;
+
+    @FXML
+    private TableColumn<Task, Void> taskProgressColumn;
 
     @FXML
     private BarChart<String, Number> tasksByProjectChart;
@@ -184,9 +192,12 @@ public class MainDashboardController {
                 .filter(t -> t.getStatus() != TaskStatus.CONCLUIDA && t.getPlannedEndDate() != null && t.getPlannedEndDate().isBefore(LocalDate.now()))
                 .count();
         overdueTasksLabel.setText(String.valueOf(overdueTasks));
-
-        long totalTeams = allTeams.size();
-        totalTeamsLabel.setText(String.valueOf(totalTeams));
+        
+        long completedTasks = allTasks.stream()
+                .filter(t -> t.getStatus() == TaskStatus.CONCLUIDA)
+                .count();
+        // O fx:id "totalTeamsLabel" foi reutilizado para exibir as tarefas concluídas.
+        totalTeamsLabel.setText(String.valueOf(completedTasks));
 
         // --- Popula a Tabela de Tarefas ---
         // Cria um mapa de ID do Projeto para Nome do Projeto para consulta rápida
@@ -214,6 +225,66 @@ public class MainDashboardController {
             Task task = cellData.getValue();
             String responsibleName = userNames.getOrDefault(task.getResponsibleId(), "Não atribuído");
             return new SimpleStringProperty(responsibleName);
+        });
+
+        // Configura a coluna de progresso para exibir uma barra colorida
+        taskProgressColumn.setCellFactory(param -> new TableCell<Task, Void>() {
+            private final ProgressBar progressBar = new ProgressBar();
+            private final VBox container = new VBox(progressBar);
+
+            {
+                // Centraliza a barra de progresso na célula
+                container.setAlignment(Pos.CENTER);
+                progressBar.setMaxWidth(Double.MAX_VALUE);
+            }
+
+            @Override
+            protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+
+                if (empty) {
+                    setGraphic(null);
+                } else {
+                    Task task = getTableView().getItems().get(getIndex());
+                    // Só exibe a barra se a tarefa e suas datas planejadas existirem
+                    if (task != null && task.getPlannedStartDate() != null && task.getPlannedEndDate() != null) {
+                        LocalDate now = LocalDate.now();
+                        LocalDate startDate = task.getPlannedStartDate();
+                        LocalDate endDate = task.getPlannedEndDate();
+
+                        double progress = 0.0;
+                        String style = "";
+
+                        if (task.getStatus() == TaskStatus.CONCLUIDA) {
+                            progress = 1.0;
+                            style = "-fx-accent: #27ae60;"; // Verde para concluído
+                        } else if (now.isAfter(endDate)) {
+                            progress = 1.0;
+                            style = "-fx-accent: #e74c3c;"; // Vermelho para atrasado
+                        } else if (now.isBefore(startDate)) {
+                            progress = 0.0;
+                            style = "-fx-accent: #2ecc71;"; // Verde para futuro
+                        } else { // Em andamento
+                            long totalDuration = endDate.toEpochDay() - startDate.toEpochDay();
+                            long elapsedDuration = now.toEpochDay() - startDate.toEpochDay();
+
+                            if (totalDuration > 0) {
+                                progress = (double) elapsedDuration / totalDuration;
+                            } else { // Tarefa de um dia ou menos
+                                progress = 0.5;
+                            }
+                            progress = Math.max(0, Math.min(progress, 1.0)); // Garante que o progresso está entre 0 e 1
+                            style = "-fx-accent: #f1c40f;"; // Amarelo para em andamento
+                        }
+
+                        progressBar.setProgress(progress);
+                        progressBar.setStyle(style);
+                        setGraphic(container);
+                    } else {
+                        setGraphic(null); // Não mostra a barra se as datas não estiverem definidas
+                    }
+                }
+            }
         });
 
         // Carrega as tarefas com prazo próximo ou atrasadas e as exibe na tabela
