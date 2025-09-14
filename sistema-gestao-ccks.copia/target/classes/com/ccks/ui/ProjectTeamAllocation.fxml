@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<VBox alignment="TOP_CENTER" prefHeight="300.0" prefWidth="400.0" spacing="20.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.ccks.ui.ProjectTeamAllocationController">
+    <padding>
+        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+    </padding>
+    <children>
+        <Label text="Alocar Equipe a Projeto">
+            <font>
+                <Font name="System Bold" size="24.0" />
+            </font>
+        </Label>
+        <Label text="Selecione o Projeto:" />
+        <ComboBox fx:id="projectComboBox" prefWidth="350.0" />
+        <Label text="Selecione a Equipe:" />
+        <ComboBox fx:id="teamComboBox" prefWidth="350.0" />
+        <Button onAction="#handleAllocateAction" text="Alocar" />
+        <Label fx:id="statusLabel" />
+    </children>
+</VBox>
