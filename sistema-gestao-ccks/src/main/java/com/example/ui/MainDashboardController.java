@@ -12,7 +12,7 @@ import com.example.model.TaskStatus;
 import java.io.IOException;
 import java.net.URL;
 import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -21,7 +21,6 @@ import javafx.scene.layout.VBox;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.scene.chart.BarChart;
 import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.PieChart;
@@ -30,6 +29,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
+import javafx.scene.chart.StackedBarChart;
 import javafx.scene.Scene;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.Label;
@@ -73,6 +73,9 @@ public class MainDashboardController {
     private TableColumn<Task, LocalDate> taskDueDateColumn;
 
     @FXML
+    private TableColumn<Task, String> taskDeadlineStatusColumn;
+
+    @FXML
     private TableColumn<Task, TaskStatus> taskStatusColumn;
 
     @FXML
@@ -82,7 +85,7 @@ public class MainDashboardController {
     private TableColumn<Task, Void> taskProgressColumn;
 
     @FXML
-    private BarChart<String, Number> tasksByProjectChart;
+    private StackedBarChart<String, Number> tasksByProjectChart;
 
     @FXML
     private CategoryAxis projectAxis;
@@ -106,6 +109,17 @@ public class MainDashboardController {
      */
     @FXML
     public void initialize() {
+        loadDashboardData();
+    }
+
+    /**
+     * Método acionado pelo botão "Atualizar Dashboard".
+     * Recarrega todos os dados do dashboard para refletir quaisquer alterações
+     * feitas no banco de dados.
+     * @param event O evento de ação gerado pelo clique no botão.
+     */
+    @FXML
+    void handleRefreshAction(ActionEvent event) {
         loadDashboardData();
     }
 
@@ -161,7 +175,11 @@ public class MainDashboardController {
             stage.setScene(new Scene(view));
             stage.initModality(Modality.APPLICATION_MODAL);
             
+            // O método showAndWait() bloqueia a execução até que a janela modal seja fechada.
             stage.showAndWait();
+
+            // Após o fechamento da janela modal, os dados do dashboard são recarregados automaticamente.
+            loadDashboardData();
         } catch (IOException e) {
          e.printStackTrace();
         }
@@ -213,6 +231,14 @@ public class MainDashboardController {
         taskDueDateColumn.setCellValueFactory(new PropertyValueFactory<>("plannedEndDate"));
         taskStatusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
 
+        // Centraliza o conteúdo das colunas da tabela de tarefas
+        taskTitleColumn.setStyle("-fx-alignment: CENTER;");
+        taskProjectColumn.setStyle("-fx-alignment: CENTER;");
+        taskResponsibleColumn.setStyle("-fx-alignment: CENTER;");
+        taskDueDateColumn.setStyle("-fx-alignment: CENTER;");
+        taskDeadlineStatusColumn.setStyle("-fx-alignment: CENTER;");
+        taskStatusColumn.setStyle("-fx-alignment: CENTER;");
+
         // Para o nome do projeto, usamos uma CellValueFactory customizada para buscar o nome a partir do ID
         taskProjectColumn.setCellValueFactory(cellData -> {
             Task task = cellData.getValue();
@@ -225,6 +251,36 @@ public class MainDashboardController {
             Task task = cellData.getValue();
             String responsibleName = userNames.getOrDefault(task.getResponsibleId(), "Não atribuído");
             return new SimpleStringProperty(responsibleName);
+        });
+
+        // Coluna customizada para exibir a situação do prazo (Atraso/No prazo)
+        taskDeadlineStatusColumn.setCellFactory(column -> new TableCell<Task, String>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+
+                // Limpa a célula se estiver vazia ou se não houver tarefa na linha
+                if (empty || getTableRow() == null || getTableRow().getItem() == null) {
+                    setText(null);
+                    setStyle("");
+                } else {
+                    Task task = getTableRow().getItem();
+                    LocalDate dueDate = task.getPlannedEndDate();
+
+                    // A lógica só se aplica a tarefas não concluídas que possuem um prazo definido
+                    if (task.getStatus() != TaskStatus.CONCLUIDA && dueDate != null) {
+                        if (dueDate.isBefore(LocalDate.now())) {
+                            setText("Atraso");
+                            setTextFill(javafx.scene.paint.Color.RED);
+                        } else {
+                            setText("No prazo");
+                            setTextFill(javafx.scene.paint.Color.DARKGREEN);
+                        }
+                    } else {
+                        setText(""); // Não exibe nada para tarefas concluídas ou sem prazo
+                    }
+                }
+            }
         });
 
         // Configura a coluna de progresso para exibir uma barra colorida
@@ -255,16 +311,12 @@ public class MainDashboardController {
                         double progress = 0.0;
                         String style = "";
 
+                        // A lógica de cores agora prioriza o STATUS da tarefa.
                         if (task.getStatus() == TaskStatus.CONCLUIDA) {
                             progress = 1.0;
                             style = "-fx-accent: #27ae60;"; // Verde para concluído
-                        } else if (now.isAfter(endDate)) {
-                            progress = 1.0;
-                            style = "-fx-accent: #e74c3c;"; // Vermelho para atrasado
-                        } else if (now.isBefore(startDate)) {
-                            progress = 0.0;
-                            style = "-fx-accent: #2ecc71;"; // Verde para futuro
-                        } else { // Em andamento
+                        } else if (task.getStatus() == TaskStatus.EM_EXECUCAO) {
+                            // Se está em execução, a cor é verde, e o progresso é calculado com base no tempo.
                             long totalDuration = endDate.toEpochDay() - startDate.toEpochDay();
                             long elapsedDuration = now.toEpochDay() - startDate.toEpochDay();
 
@@ -273,8 +325,27 @@ public class MainDashboardController {
                             } else { // Tarefa de um dia ou menos
                                 progress = 0.5;
                             }
-                            progress = Math.max(0, Math.min(progress, 1.0)); // Garante que o progresso está entre 0 e 1
-                            style = "-fx-accent: #f1c40f;"; // Amarelo para em andamento
+                            progress = Math.max(0, Math.min(progress, 1.0));
+                            style = "-fx-accent: #2ecc71;"; // Verde para futuro
+                        } else if (task.getStatus() == TaskStatus.PENDENTE) {
+                            // Para tarefas pendentes, a cor depende da data.
+                            if (now.isAfter(endDate)) {
+                                progress = 1.0;
+                                style = "-fx-accent: #e74c3c;"; // Vermelho para atrasado
+                            } else if (now.isBefore(startDate)) {
+                                progress = 0.0;
+                                style = "-fx-accent: #bdc3c7;"; // Cinza para futuro/pendente
+                            } else { // Pendente e no prazo
+                                long totalDuration = endDate.toEpochDay() - startDate.toEpochDay();
+                                long elapsedDuration = now.toEpochDay() - startDate.toEpochDay();
+                                if (totalDuration > 0) {
+                                    progress = (double) elapsedDuration / totalDuration;
+                                } else {
+                                    progress = 0.5;
+                                }
+                                progress = Math.max(0, Math.min(progress, 1.0));
+                                style = "-fx-accent: #f1c40f;"; // Amarelo para pendente
+                            }
                         }
 
                         progressBar.setProgress(progress);
@@ -327,22 +398,58 @@ public class MainDashboardController {
      * @param allTasks A lista de todas as tarefas.
      */
     private void loadTasksByProjectChartData(List<Project> allProjects, List<Task> allTasks) {
-        // Agrupa as tarefas por ID do projeto e conta quantas tarefas cada projeto tem.
-        Map<Integer, Long> tasksPerProject = allTasks.stream()
-                .collect(Collectors.groupingBy(Task::getProjectId, Collectors.counting()));
+        // Define as séries para cada status de tarefa
+        XYChart.Series<String, Number> pendingSeries = new XYChart.Series<>();
+        pendingSeries.setName("Pendente");
 
-        // Cria a série de dados para o gráfico.
-        XYChart.Series<String, Number> series = new XYChart.Series<>();
-        series.setName("Nº de Tarefas");
+        XYChart.Series<String, Number> inProgressSeries = new XYChart.Series<>();
+        inProgressSeries.setName("Em Execução");
 
-        // Itera sobre todos os projetos para criar uma barra para cada um.
+        XYChart.Series<String, Number> completedSeries = new XYChart.Series<>();
+        completedSeries.setName("Concluída");
+
+        // Agrupa as tarefas por projeto e, em seguida, por status, contando cada grupo.
+        Map<Integer, Map<TaskStatus, Long>> tasksByProjectAndStatus = allTasks.stream()
+                .collect(Collectors.groupingBy(
+                    Task::getProjectId,
+                    Collectors.groupingBy(Task::getStatus, Collectors.counting())
+                ));
+
+        long maxTasksInSingleProject = 0;
+
+        // Itera sobre todos os projetos para popular as séries
         for (Project project : allProjects) {
-            long taskCount = tasksPerProject.getOrDefault(project.getId(), 0L);
-            series.getData().add(new XYChart.Data<>(project.getName(), taskCount));
+            Map<TaskStatus, Long> statusCounts = tasksByProjectAndStatus.getOrDefault(project.getId(), Collections.emptyMap());
+
+            long pendingCount = statusCounts.getOrDefault(TaskStatus.PENDENTE, 0L);
+            long inProgressCount = statusCounts.getOrDefault(TaskStatus.EM_EXECUCAO, 0L);
+            long completedCount = statusCounts.getOrDefault(TaskStatus.CONCLUIDA, 0L);
+
+            // Calcula o total de tarefas do projeto para ajustar a escala do eixo Y
+            long totalForProject = pendingCount + inProgressCount + completedCount;
+            if (totalForProject > maxTasksInSingleProject) {
+                maxTasksInSingleProject = totalForProject;
+            }
+
+            pendingSeries.getData().add(new XYChart.Data<>(project.getName(), pendingCount));
+            inProgressSeries.getData().add(new XYChart.Data<>(project.getName(), inProgressCount));
+            completedSeries.getData().add(new XYChart.Data<>(project.getName(), completedCount));
         }
 
+        // Configura o eixo Y para ter uma escala apropriada, evitando que fique muito grande
+        taskCountAxis.setAutoRanging(false); // Desativa o dimensionamento automático para ter controle total
+        taskCountAxis.setLowerBound(0);
+
+        // Define o limite superior com uma pequena margem. Se não houver tarefas, define um limite mínimo.
+        double upperBound = maxTasksInSingleProject == 0 ? 5.0 : maxTasksInSingleProject + 2.0;
+        taskCountAxis.setUpperBound(upperBound);
+
+        // Define a unidade do tick para ser um inteiro e evitar muitos marcadores no eixo.
+        double tickUnit = Math.max(1.0, Math.ceil(upperBound / 10.0)); // Tenta ter no máximo 10 marcadores
+        taskCountAxis.setTickUnit(tickUnit);
+
         tasksByProjectChart.getData().clear();
-        tasksByProjectChart.getData().add(series);
-        tasksByProjectChart.setLegendVisible(false); // A legenda é um pouco redundante aqui.
+        tasksByProjectChart.getData().addAll(pendingSeries, inProgressSeries, completedSeries);
+        tasksByProjectChart.setLegendVisible(true); // Agora a legenda é útil
     }
 }
