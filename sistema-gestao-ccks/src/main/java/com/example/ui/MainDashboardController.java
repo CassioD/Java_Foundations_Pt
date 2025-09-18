@@ -16,6 +16,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.layout.VBox;
 import javafx.collections.FXCollections;
@@ -29,6 +30,8 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
+import javafx.scene.Node;
+import javafx.scene.layout.StackPane;
 import javafx.scene.chart.StackedBarChart;
 import javafx.scene.Scene;
 import javafx.scene.control.ProgressBar;
@@ -38,6 +41,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import com.example.dao.UserDAO;
+import javafx.scene.paint.Color;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
@@ -109,6 +113,19 @@ public class MainDashboardController {
      */
     @FXML
     public void initialize() {
+        // Configurações visuais para limpar o gráfico de barras
+        tasksByProjectChart.setAnimated(false);
+        tasksByProjectChart.setVerticalGridLinesVisible(false);
+        tasksByProjectChart.setHorizontalGridLinesVisible(false);
+
+        // Adiciona um padding no topo da área de plotagem para dar espaço aos rótulos de total.
+        // O lookup é usado aqui porque o estilo precisa ser aplicado após a UI ser construída.
+        Platform.runLater(() -> {
+            Node plotContent = tasksByProjectChart.lookup(".plot-content");
+            if (plotContent != null) {
+                plotContent.setStyle("-fx-padding: 20px 5px 5px 5px;");
+            }
+        });
         loadDashboardData();
     }
 
@@ -385,11 +402,14 @@ public class MainDashboardController {
             // Nota: Isso gera uma consulta ao banco para cada equipe.
             // Para um grande número de equipes, otimizar com uma única query seria ideal.
             int memberCount = teamDAO.getTeamMembers(team.getId()).size();
-            pieChartData.add(new PieChart.Data(team.getName(), memberCount));
+            // Formata o rótulo para incluir o nome da equipe e a contagem de membros.
+            String label = String.format("%s (%d)", team.getName(), memberCount);
+            pieChartData.add(new PieChart.Data(label, memberCount));
         }
 
         teamsPieChart.setData(pieChartData);
         teamsPieChart.setTitle("Membros por Equipe");
+        teamsPieChart.setLegendVisible(false); // Remove a legenda da parte inferior do gráfico
     }
 
     /**
@@ -431,9 +451,17 @@ public class MainDashboardController {
                 maxTasksInSingleProject = totalForProject;
             }
 
-            pendingSeries.getData().add(new XYChart.Data<>(project.getName(), pendingCount));
-            inProgressSeries.getData().add(new XYChart.Data<>(project.getName(), inProgressCount));
-            completedSeries.getData().add(new XYChart.Data<>(project.getName(), completedCount));
+            XYChart.Data<String, Number> pendingData = new XYChart.Data<>(project.getName(), pendingCount);
+            pendingData.setNode(createLabelNodeForBar(pendingCount));
+            pendingSeries.getData().add(pendingData);
+
+            XYChart.Data<String, Number> inProgressData = new XYChart.Data<>(project.getName(), inProgressCount);
+            inProgressData.setNode(createLabelNodeForBar(inProgressCount));
+            inProgressSeries.getData().add(inProgressData);
+
+            XYChart.Data<String, Number> completedData = new XYChart.Data<>(project.getName(), completedCount);
+            completedData.setNode(createTotalLabelNode(completedCount, totalForProject));
+            completedSeries.getData().add(completedData);
         }
 
         // Configura o eixo Y para ter uma escala apropriada, evitando que fique muito grande
@@ -451,5 +479,58 @@ public class MainDashboardController {
         tasksByProjectChart.getData().clear();
         tasksByProjectChart.getData().addAll(pendingSeries, inProgressSeries, completedSeries);
         tasksByProjectChart.setLegendVisible(true); // Agora a legenda é útil
+
+        // Oculta o eixo Y (números e linha) para evitar redundância com os rótulos nas barras.
+        taskCountAxis.setTickLabelsVisible(false);
+        taskCountAxis.setOpacity(0);
+    }
+
+    /**
+     * Cria um nó (StackPane) com um rótulo para ser exibido dentro de um segmento da barra.
+     * @param value O valor a ser exibido no rótulo.
+     * @return Um nó StackPane contendo o rótulo, ou null se o valor for zero.
+     */
+    private Node createLabelNodeForBar(long value) {
+        if (value == 0) {
+            return null; // Não cria rótulo para valores zero.
+        }
+        StackPane node = new StackPane();
+        Label label = new Label(String.valueOf(value));
+        label.setTextFill(Color.WHITE);
+        label.setStyle("-fx-font-size: 9px; -fx-font-weight: bold;");
+        node.getChildren().add(label);
+        return node;
+    }
+
+    /**
+     * Cria um nó (StackPane) para o segmento superior da barra, que inclui tanto o rótulo
+     * do segmento quanto o rótulo do total, posicionado acima da barra.
+     * @param segmentValue O valor do segmento superior.
+     * @param totalValue O valor total da barra.
+     * @return Um nó StackPane com os rótulos, ou null se o total for zero.
+     */
+    private Node createTotalLabelNode(long segmentValue, long totalValue) {
+        if (totalValue == 0) {
+            return null;
+        }
+
+        StackPane node = new StackPane();
+
+        // Adiciona o rótulo para o segmento, se não for zero
+        if (segmentValue > 0) {
+            Label segmentLabel = new Label(String.valueOf(segmentValue));
+            segmentLabel.setTextFill(Color.WHITE);
+            segmentLabel.setStyle("-fx-font-size: 9px; -fx-font-weight: bold;");
+            node.getChildren().add(segmentLabel);
+        }
+
+        // Adiciona o rótulo para o total, posicionado acima da barra
+        Label totalLabel = new Label(String.valueOf(totalValue));
+        totalLabel.setStyle("-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #333;");
+        StackPane.setAlignment(totalLabel, Pos.TOP_CENTER);
+        totalLabel.setTranslateY(-15); // Move o rótulo para cima
+        node.getChildren().add(totalLabel);
+
+        return node;
     }
 }
